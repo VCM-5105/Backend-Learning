@@ -1,65 +1,74 @@
-# 🚀 Backend Development Notes (Node.js + Express)
+# 🚀 Backend Development Notes
 
-## Initial Project Setup
+## Initial Setup
 
-* Initialize the project
+- `npm init`
+- Create:
+  - `.env`
+  - `.gitignore`
+  - `public/temp/.gitkeep`
+- Enable ES Modules
 
-  ```bash
-  npm init
-  ```
+```json
+"type": "module"
+```
 
-* Create:
+- Install
 
-  * `public/temp/.gitkeep`
-  * `.env`
-  * `.gitignore` (use Git Ignore Generator)
+```bash
+npm i express mongoose dotenv
+npm i -D nodemon
+npm i prettier
+```
 
-* Enable ES Modules
+- Update script
 
-  ```json
-  "type": "module"
-  ```
+```json
+"dev": "nodemon src/index.js"
+```
 
-* Install **Nodemon** (Development only)
+- Create
 
-  ```bash
-  npm i -D nodemon
-  ```
+```bash
+mkdir controllers db middlewares models routes utils
+```
 
-* Update `package.json`
-
-  ```json
-  "scripts": {
-    "dev": "nodemon src/index.js"
-  }
-  ```
-
-* Create `src/index.js`
-
-* Create core folders
-
-  ```bash
-  mkdir controllers db middlewares models routes utils
-  ```
-
-* Install **Prettier**
-
-  ```bash
-  npm i prettier
-  ```
-
-* Create:
-
-  * `.prettierrc`
-  * `.prettierignore`
+- Create:
+  - `.prettierrc`
+  - `.prettierignore`
 
 ---
 
-## 📝 Quick Notes
+## MongoDB Connection
 
-* Use ES Modules (`type: module`).
-* Keep secrets inside `.env`.
-* Never commit `.env`.
-* Nodemon is for development only.
-* Use `.gitkeep` to track empty folders.
-* Configure Prettier before writing code.
+- Create Atlas Cluster.
+- Configure **DB Access** & **Network Access**.
+- Add URI to `.env`.
+
+```env
+MONGODB_URI=your_uri
+```
+
+- Create `db/index.js`.
+- Export `connectDB()` and call it from `index.js`.
+
+---
+
+## 📝 Notes
+
+- DB connection → `async/await` + `try-catch`.
+- Never connect DB directly in one line.
+- Import with extension.
+
+```js
+import connectDB from "./db/index.js";
+```
+
+- Log meaningful errors.
+
+```js
+console.log("MongoDB Connection Error:", error);
+```
+
+- Load `.env` before using `process.env`.
+- Never commit `.env`.
