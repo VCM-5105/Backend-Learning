@@ -119,8 +119,12 @@ const loginUser = asynchandler(async (req, res) => {
         httpOnly: true,
         secure: true
     }
-    return res.status(200).cookie("accessToken", accessToken, options).cookie("refreshToken", refreshToken, options).json(
-        new ApiResponse(
+    return res
+        .status(200)
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", refreshToken, options)
+        .json(
+        new ApiResponse( // we are handling that case where user want to save acess and refresh token by himself
             200, {
                 user: loggedInUser,accessToken,refreshToken
         },
@@ -130,10 +134,31 @@ const loginUser = asynchandler(async (req, res) => {
 })
 
 const logoutUser = asynchandler(async (req, res) => {
-    // here the concept of middleware can be used
+    User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $set: {
+                refreshToken: undefined
+            }
+        },
+        {
+            new:true
+        }
+    )
+
+    const options = {
+        httpOnly: true,
+        secure:true
+    }
+    return res
+        .status(200)
+        .clearCookie("accessToken", options)
+        .json(new ApiResponse(200, {}, "User Logged out"))
+    
 })
 
 export {
     registerUser,
-    loginUser
+    loginUser,
+    logoutUser
 }
