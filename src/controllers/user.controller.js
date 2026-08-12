@@ -130,7 +130,7 @@ const loginUser = asynchandler(async (req, res) => {
 })
 
 const logoutUser = asynchandler(async (req, res) => {
-    
+    // here the concept of middleware can be used
 })
 
 export {
