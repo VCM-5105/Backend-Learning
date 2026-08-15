@@ -311,6 +311,80 @@ const updateUserCoverImage = asynchandler(async (req, res) => {
     .json(new ApiResponse(200, user,"Cover image updated Successfully"))
 })
 
+const getUserChannelProfile = asynchandler(async (req, res) => {
+    const { username } = req.params
+    
+    if (!username?.trim()) {
+        throw new ApiError(400,"Username is Missing")
+    }
+
+    const channel = await User.aggregate([
+        {
+            $match: {
+               username:username?.toLowerCase()
+           }
+        },
+        {
+            $lookup: {
+                from: "Subscriptions",
+                localField: "_id",
+                foreignField: "channel",
+                as:"Subscribers"
+           } 
+        },
+        {
+              $lookup: {
+                from: "Subscriptions",
+                localField: "_id",
+                foreignField: "subscriber",
+                as:"SubscribedTo"
+           }
+        },
+        {
+            $addFields: {
+                subscribersCount: {
+                    $size:"$Subscribers"
+                },
+                channelsSubscribedTOCount: {
+                    $size:"$SubscribedTo"
+                },
+                isSubscribed: {
+                    $cond: {
+                        if: { $in: [req.user?._id, "Subscribers.subscriber"] },
+                        then: true,
+                        else:false
+                    }
+                }
+            }
+        },
+        {
+            $project: {
+                fullname: 1,
+                username: 1,
+                subscribersCount: 1,
+                channelsSubscribedTOCount: 1,
+                isSubscribed: 1,
+                avatar: 1,
+                coverImage: 1,
+                email:1
+            }
+        }
+    ])
+    if (!channel?.length) {
+        throw new ApiError(404,"Channel does not exists")
+    }
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(200, channel[0],"User Channel fetched Successfully")
+    )
+    
+    // console log channel what data does aggregate returns
+    
+    // returns the sorted documents
+})
+
 export {
     registerUser,
     loginUser,
@@ -320,5 +394,6 @@ export {
     getCurrentuser,
     updateAccountDetails,
     updateUserAvatar,
-    updateUserCoverImage
+    updateUserCoverImage,
+    getUserChannelProfile
 }
